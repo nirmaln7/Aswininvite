@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Aswin & Namitha Wedding Invitation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,700;1,400&family=Montserrat:wght@200;400;600&display=swap" rel="stylesheet">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            background-color: #ffffff;
+            overflow: hidden; 
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .fullscreen-container {
+            width: 100vw;
+            height: 100vh;
+            position: relative;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        /* --- PAGE 1: HIGH-AESTHETIC COVER --- */
+        .page-1 {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            cursor: pointer; 
+            /* Multi-stage transition for the "vaporize" feel */
+            transition: 
+                opacity 2.2s cubic-bezier(0.23, 1, 0.32, 1), 
+                transform 2.5s cubic-bezier(0.23, 1, 0.32, 1), 
+                filter 2.2s ease-in-out;
+            background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.7)), url('krishna.jpg') center/cover no-repeat;
+        }
+
+        .dissolve-out {
+            opacity: 0;
+            filter: blur(40px) brightness(1.3) saturate(0);
+            transform: scale(1.15);
+            pointer-events: none;
+        }
+
+        #dustCanvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .cover-text {
+            text-align: center;
+            color: #ffffff;
+            z-index: 2;
+            transition: transform 2s ease, opacity 1.5s ease;
+        }
+
+        .dissolve-out .cover-text {
+            transform: translateY(-60px);
+            opacity: 0;
+        }
+
+        .cover-text h1 {
+            font-family: 'Great Vibes', cursive;
+            font-size: clamp(4rem, 15vw, 6rem);
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255,255,255,0.2);
+        }
+
+        .cover-text p {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 0.9rem;
+            letter-spacing: 12px;
+            text-transform: uppercase;
+            font-weight: 200;
+        }
+
+        /* --- PAGE 2: TORN PAPER --- */
+        .page-2-wrapper { position: absolute; inset: 0; z-index: 50; cursor: pointer; margin: 10px }
+        .page-2-half { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transition: transform 3s cubic-bezier(0.4, 0, 0.2, 1), opacity 2s; }
+        .torn-paper-bg { position: absolute; inset: 0; background-color: #e6d5b8; filter: url(#deckled-border); z-index: 1; }
+        .top-half { clip-path: polygon(0 0, 100% 0, 100% 55%, 90% 58%, 80% 52%, 70% 60%, 60% 50%, 50% 58%, 40% 52%, 30% 60%, 15% 51%, 0 55%); z-index: 60; }
+        .bottom-half { clip-path: polygon(0 55%, 15% 51%, 30% 60%, 40% 52%, 50% 58%, 60% 50%, 70% 60%, 80% 52%, 90% 58%, 100% 55%, 100% 100%, 0 100%); z-index: 55; }
+        .tear-active .top-half { transform: translateY(-130vh) rotate(-5deg); opacity: 0; }
+        .tear-active .bottom-half { transform: translateY(130vh) rotate(5deg); opacity: 0; }
+        .paper-text { position: relative; z-index: 100; text-align: center; padding: 40px; color: #2c2419; font-family: 'Playfair Display', serif; font-size: 1.8rem; font-style: italic; max-width: 85%; }
+
+        /* --- PAGE 3: CALENDAR --- */
+        .page-3 { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 10; opacity: 0; transition: opacity 0.8s ease; pointer-events: none; }
+        .reveal-active .page-3 { opacity: 1; pointer-events: auto; }
+        .calendar-stack { position: relative; width: 320px; height: 380px; }
+        .calendar-sheet { position: absolute; inset: 0; background: #fff url('https://www.transparenttextures.com/patterns/natural-paper.png'); border: 1px solid #d4af37; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); transition: transform 0.8s cubic-bezier(0.5, 0, 0.5, 1), opacity 0.6s; }
+        .tear-off { transform: translateY(120vh) rotate(15deg); opacity: 0; }
+        .cal-month-title { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: #8b6b23; font-style: italic; text-align: center; margin-bottom: 15px;}
+        .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; font-family: 'Playfair Display', serif; font-size: 0.85rem; text-align: center; }
+        .special-day { position: relative; color: #b8860b; font-weight: bold; }
+        .special-day::after { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0); width: 30px; height: 30px; border: 2px solid #d4af37; border-radius: 50%; transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.3s; }
+        .reveal-active .special-day::after { transform: translate(-50%, -50%) scale(1); }
+
+        /* --- SAVE THE DATE POPUP --- */
+        .std-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(15px);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease;
+        }
+        .std-overlay.active { opacity: 1; visibility: visible; cursor: pointer; }
+        .std-card { background: #fff; padding: 30px 45px; border: 1px solid #d4af37; text-align: center; box-shadow: 0 15px 40px rgba(0,0,0,0.1); transform: translateY(40px) scale(0.85); transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); margin-bottom: 30px; }
+        .std-overlay.active .std-card { transform: translateY(0) scale(1); }
+        .std-card .day { font-family: 'Playfair Display', serif; font-size: 6rem; color: #d4af37; line-height: 1; margin: 5px 0; }
+        .std-text { font-family: 'Montserrat', sans-serif; font-size: 1.3rem; letter-spacing: 10px; text-transform: uppercase; color: #8b6b23; opacity: 0; transform: translateY(20px); transition: all 0.8s ease 0.4s; }
+        .std-overlay.active .std-text { opacity: 1; transform: translateY(0); }
+        .std-names { font-family: 'Great Vibes', cursive; font-size: 3.5rem; color: #d4af37; margin-top: 15px; opacity: 0; transition: all 0.8s ease 0.7s; }
+        .std-overlay.active .std-names { opacity: 1; }
+
+        /* --- PAGE 4: LOCATION --- */
+        .page-4 {
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.8)), url('guru.png') center/cover no-repeat;
+            opacity: 0;
+            transition: opacity 1.5s ease;
+            text-align: center;
+            padding: 20px;
+        }
+        .show-location .page-4 { opacity: 1; z-index: 300; }
+        .temple-name { color: #d4af37; font-family: 'Great Vibes', cursive; font-size: 3.5rem; display: block; margin: 15px 0; }
+        .pin-icon { fill: #d4af37; width: 65px; height: 65px; animation: pulse 2s infinite; cursor: pointer; filter: drop-shadow(0 0 10px rgba(212,175,55,0.5)); }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+
+    </style>
+</head>
+<body>
+
+    <svg style="width:0;height:0;position:absolute;">
+        <filter id="deckled-border">
+            <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="5" result="noise" />
+            <feDisplacementMap in="SourceGraphic" in2="noise" scale="22" />
+        </filter>
+    </svg>
+
+    <div class="fullscreen-container" id="mainContainer">
+        
+        <div class="page-4" id="locationPage">
+            <div style="color: #fff; font-family: 'Playfair Display', serif; font-size: 1.6rem; font-style: italic;">Meet us here</div>
+            <span class="temple-name">Guruvayur Sree Krishna Temple</span>
+            <a href="https://maps.app.goo.gl/DSeY5VsPcpzbkqpP7" target="_blank">
+                <svg class="pin-icon" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            </a>
+        </div>
+
+        <div class="std-overlay" id="stdOverlay">
+            <div class="std-card">
+                <div style="font-family: 'Great Vibes', cursive; font-size: 2.8rem; color: #b8860b;">June</div>
+                <div class="day">24</div>
+                <div style="font-family: 'Montserrat', sans-serif; font-size: 1.1rem; color: #b8860b; letter-spacing: 5px;">2026</div>
+            </div>
+            <div class="std-text">Save The Date</div>
+            <div class="std-names">Aswin & Namitha</div>
+        </div>
+
+        <div class="page-3">
+            <div class="calendar-stack" id="calStack">
+                <div class="calendar-sheet" style="z-index: 1;">
+                    <div class="cal-month-title">June 2026</div>
+                    <div class="cal-grid" id="juneGrid"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="page-2-wrapper" id="paperWrapper">
+            <div class="page-2-half top-half"><div class="torn-paper-bg"></div><div class="paper-text">"Together with our family, we invite you to celebrate our wedding. Kindly bless us with your presence on our special day."</div></div>
+            <div class="page-2-half bottom-half"><div class="torn-paper-bg"></div><div class="paper-text">"Together with our family, we invite you to celebrate our wedding. Kindly bless us with your presence on our special day."</div></div>
+        </div>
+
+        <div class="page-1" id="coverPage">
+            <canvas id="dustCanvas"></canvas>
+            <div class="cover-text"><h1>Aswin<br>&<br>Namitha</h1><p>Invites you to</p></div>
+        </div>
+    </div>
+
+    <script>
+        const monthsData = [
+            { name: "January", days: 31, start: 4 },
+            { name: "February", days: 28, start: 0 },
+            { name: "March", days: 31, start: 0 },
+            { name: "April", days: 30, start: 3 },
+            { name: "May", days: 31, start: 5 }
+        ];
+
+        function init() {
+            const calStack = document.getElementById('calStack');
+            const juneGrid = document.getElementById('juneGrid');
+            let gridHtml = '';
+            ["S","M","T","W","T","F","S"].forEach(d => gridHtml += `<div class="day-name">${d}</div>`);
+            for(let i=0; i<1; i++) gridHtml += `<div></div>`;
+            for(let d=1; d<=30; d++) gridHtml += `<div class="day-num ${d === 24 ? 'special-day' : ''}">${d}</div>`;
+            juneGrid.innerHTML = gridHtml;
+
+            monthsData.reverse().forEach((m, idx) => {
+                const sheet = document.createElement('div');
+                sheet.className = 'calendar-sheet flick-sheet';
+                sheet.style.zIndex = idx + 10;
+                let mHtml = `<div class="cal-month-title">${m.name} 2026</div><div class="cal-grid">`;
+                ["S","M","T","W","T","F","S"].forEach(d => mHtml += `<div class="day-name">${d}</div>`);
+                for(let i=0; i<m.start; i++) mHtml += `<div></div>`;
+                for(let d=1; d<=m.days; d++) mHtml += `<div class="day-num">${d}</div>`;
+                mHtml += `</div>`;
+                sheet.innerHTML = mHtml;
+                calStack.appendChild(sheet);
+            });
+        }
+        init();
+
+        const coverPage = document.getElementById('coverPage');
+        coverPage.addEventListener('click', () => coverPage.classList.add('dissolve-out'));
+
+        document.getElementById('paperWrapper').addEventListener('click', function() {
+            if (!coverPage.classList.contains('dissolve-out')) return;
+            document.getElementById('mainContainer').classList.add('tear-active');
+            setTimeout(() => {
+                document.getElementById('mainContainer').classList.add('reveal-active');
+                const sheets = Array.from(document.querySelectorAll('.flick-sheet')).reverse();
+                sheets.forEach((sheet, i) => {
+                    setTimeout(() => sheet.classList.add('tear-off'), 500 + (i * 450));
+                });
+                const popupTime = 500 + (sheets.length * 450) + 800;
+                setTimeout(() => document.getElementById('stdOverlay').classList.add('active'), popupTime);
+            }, 300);
+        });
+
+        document.getElementById('stdOverlay').addEventListener('click', () => {
+            document.getElementById('mainContainer').classList.add('show-location');
+        });
+
+        // Aesthetic Dust Particle System
+        const canvas = document.getElementById('dustCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() { 
+                this.x = Math.random()*canvas.width; 
+                this.y = Math.random()*canvas.height; 
+                this.size = Math.random()*1.8; 
+                this.speedY = Math.random()*-0.5; 
+                this.opacity = Math.random() * 0.7; 
+                this.hue = Math.random() * 20 + 35; 
+            }
+            update() { this.y += this.speedY; if(this.y < 0) this.y = canvas.height; }
+            draw() { 
+                ctx.fillStyle = `hsla(${this.hue}, 80%, 80%, ${this.opacity})`; 
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill(); 
+            }
+        }
+        for(let i=0; i<100; i++) particles.push(new Particle());
+        function anim() { ctx.clearRect(0,0,canvas.width,canvas.height); particles.forEach(p=>{p.update(); p.draw();}); requestAnimationFrame(anim); }
+        anim();
+    </script>
+</body>
+</html>
